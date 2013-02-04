@@ -125,6 +125,10 @@ class TestGetNoPrompt(BaseDjSet):
     def test_get_no_prompt(self):
         with self.assertRaises(ImproperlyConfigured):
             self.d.get('key')
+            
+    def test_get_with_default(self):
+        self.assertEqual(self.d.get('key2', 'value2'), 'value2')
+    
     
 
 class TestRemove(BaseDjSetWithTeardown):

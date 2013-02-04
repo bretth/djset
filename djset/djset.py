@@ -28,7 +28,7 @@ class DjSet(object):
         ns = '.'.join([key, self._glob]) if glob else '.'.join([key, self.name, self._glob])
         return ns
     
-    def get(self, key):
+    def get(self, key, default=None):
         """
         Return the value for key from the environment or keyring.
         The keyring value is resolved from a local namespace or a global one.
@@ -38,6 +38,7 @@ class DjSet(object):
             value = keyring.get_password(self.namespace(key), key)
         if not value:
             value = keyring.get_password(self.namespace(key, glob=True), key)
+        value = value or default
         if not value and not self.prompt:
             error_msg = "The %s setting is undefined in the environment and %s" % (value, self._glob)
             raise ImproperlyConfigured(error_msg)
