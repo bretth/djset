@@ -5,7 +5,7 @@ from setuptools import setup
 
 
 setup(name='djset',
-    version='0.1',
+    version='0.1.1',
     description="Utilities for Django settings secrets",
     author='Brett Haydon',
     url='https://github.com/bretth/djset',
