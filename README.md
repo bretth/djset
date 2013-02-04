@@ -1,7 +1,10 @@
 Djset
 =====
 
-Djset manages your secrets in django projects using shell environment variables with fallback to your platform dependent keychain through the python keyring library. It will also trigger a reload of your local django runserver.
+Djset simplifies managing secrets in your django settings.
+
+A common django configuration pattern is to use environment variables in production environments with a local unversioned settings file to hold your secret development api keys and other settings. Djset simplifies management of secret settings locally by using the shell environ, system keyring, and optionally user prompted settings. In a production environment secrets not found in the environ will raise a ImproperlyConfigured error. 
+
 
 Installation
 ---------------
@@ -29,9 +32,11 @@ The key is resolved in the following order:
 
 	environment
 	    |
-	keychain in the *KEY.NAME.keyring* namespace (local)
+	keychain in the KEY.NAME.keyring namespace (local)
 	    |
-	keychain in the *KEY.keyring* namespace (global)
+	keychain in the KEY.keyring namespace (global)
+            |
+        prompt for input or raise ImproperlyConfigured
 
 By default the *NAME* in the namespace is your DJANGO_SETTINGS_MODULE. To use an alternate namespace: 
 
