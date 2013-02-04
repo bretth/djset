@@ -3,13 +3,15 @@ Djset
 
 Djset simplifies managing secrets in your django settings.
 
-A common django configuration pattern is to use environment variables in production environments with a local unversioned settings file to hold your secret development api keys and other settings. Djset simplifies management of secret settings locally by using the shell environ, system keyring, and optionally user prompted settings. In a production environment secrets not found in the environ will raise a ImproperlyConfigured error. 
+A common django configuration pattern is to use environment variables in production environments with a local unversioned settings file to hold your secret development api keys and other settings. Djset simplifies management of secret settings locally by using the shell environ, system keyring, and optionally user prompted settings. In a production environment secrets not found in the environ will raise a ImproperlyConfigured error.
+
+Djset is a convenience layer on top of the python keyring library.
 
 
 Installation
 ---------------
 
-Djset currently requires python >= 2.6. There are currently some outstanding issues with keyring on python 3.
+Djset currently requires python >= 2.6. There are currently some outstanding issues with python keyring on python 3.
 
 
 ``pip install djset``
