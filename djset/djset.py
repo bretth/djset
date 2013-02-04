@@ -4,7 +4,6 @@ import os
 import keyring
 from keyring.errors import PasswordDeleteError
 from django.core.exceptions import ImproperlyConfigured
-from six.moves import input
 
 
 class DjSet(object):
@@ -17,6 +16,10 @@ class DjSet(object):
         self.prompt = prompt
                 
     def _prompt_for_value(self, key):
+        try:
+            input = raw_input
+        except NameError: # py3
+            pass
         return input('Enter the %s value for %s []:' % (self.settings, key))
     
     
