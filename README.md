@@ -22,11 +22,7 @@ Djset is entirely dependent on the DJANGO_SETTINGS_MODULE variable being set in 
 
 
 Usage
---------
-Add a setting you want kept secret from the command line:
-
-    djset add SECRET_KEY=xyz    
-
+--------   
 In your settings.py add something like the following:
 
         from djset import DjSet
@@ -56,9 +52,8 @@ By default the *NAME* in the namespace is your DJANGO_SETTINGS_MODULE. To use an
 
 To add and remove keys use the command line:
 
-        djset add <key>=<value> [--global] [--name] [--settings]
-        djset remove <key> [--global] [--name] [--settings]
-
+        djset add <key>=<value> [--global] [--name=<name> | --settings=<settings>]
+        djset remove <key> [--global]  [--name=<name> | --settings=<settings>]
 
 Note::
 
