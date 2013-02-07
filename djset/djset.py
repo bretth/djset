@@ -60,18 +60,22 @@ class DjSet(object):
             self.set(key, '', glob)
 
     
-def _locate_settings():
+def _locate_settings(settings=''):
     "Return the path to the DJANGO_SETTINGS_MODULE"
     
-    from importlib import import_module
-    import inspect
-    settings = os.getenv('DJANGO_SETTINGS_MODULE')
-    if settings: 
-        i = import_module(settings)
-        f = inspect.getfile(i)
-        if '.pyc' in f:
-            return f[:-1]
-        return f
+    import imp
+    import sys
+    sys.path.append(os.getcwd())
+    settings = settings or os.getenv('DJANGO_SETTINGS_MODULE')
+    if settings:
+        parts = settings.split('.')
+        f = imp.find_module(parts[0])[1]
+        args = [f] + parts[1:]
+        path = os.path.join(*args)
+        path = path + '.py'
+        if os.path.exists(path):
+            return path
+
 
 def locate_settings():
     "Print the path to your DJANGO_SETTINGS_MODULE"
