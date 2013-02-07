@@ -10,9 +10,8 @@ class DjSet(object):
     
     _glob = 'keyring'
     
-    def __init__(self, name='', prompt=False):
-        self.settings = os.environ['DJANGO_SETTINGS_MODULE']
-        self.name = name or self.settings
+    def __init__(self, prompt=False, name=''):
+        self.name = name or os.environ['DJANGO_SETTINGS_MODULE']
         self.prompt = prompt
                 
     def _prompt_for_value(self, key, prompt_default):
