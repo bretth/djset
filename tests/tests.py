@@ -52,15 +52,19 @@ class TestCommands(BaseDjSet):
     
     def test_dexport(self):
         mtime1 = os.stat(self.f).st_mtime
-        time.sleep(2)  # HFS+ has a resolution of 1 sec
+        # due to random issues with warming mtime on OSX we'll call it twice and
+        # put a sleep in the middle.
+        call('source dexportunset.sh; dexport DJS=xyz', shell=True)
+        time.sleep(1)  # HFS+ has a resolution of 1 sec
         call('source dexportunset.sh; dexport DJS=xyz', shell=True)
         mtime2 = os.stat(self.f).st_mtime
         
         self.assertNotEqual(mtime1, mtime2)
-
+    
     def test_dunset(self):
         mtime1 = os.stat(self.f).st_mtime
-        time.sleep(2)
+        call('source dexportunset.sh; dunset DJS', shell=True)
+        time.sleep(1)
         call('source dexportunset.sh; dunset DJS', shell=True)
         mtime2 = os.stat(self.f).st_mtime
         self.assertNotEqual(mtime1, mtime2)
