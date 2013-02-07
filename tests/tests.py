@@ -100,7 +100,7 @@ class TestGet(BaseDjSetWithTeardown):
     def setUp(self):
         super(TestGet, self).setUp()
         # override user input function for test
-        self.d._prompt_for_value = lambda key: 'vp'
+        self.d._prompt_for_value = lambda key, prompt_default: 'vp'
         self.d.prompt = True
     
     @params(
@@ -125,9 +125,6 @@ class TestGetNoPrompt(BaseDjSet):
     def test_get_no_prompt(self):
         with self.assertRaises(ImproperlyConfigured):
             self.d.get('key')
-            
-    def test_get_with_default(self):
-        self.assertEqual(self.d.get('key2', 'value2'), 'value2')
     
     
 

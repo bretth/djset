@@ -15,12 +15,13 @@ class DjSet(object):
         self.name = name or self.settings
         self.prompt = prompt
                 
-    def _prompt_for_value(self, key):
+    def _prompt_for_value(self, key, prompt_default):
         try:
             input = raw_input
         except NameError: # py3
             pass
-        return input('Enter the %s value for %s []:' % (self.settings, key))
+        
+        return input("Enter the '%s' value for %s [%s]:" % (self.name, key, prompt_default)) or prompt_default
     
     
     def namespace(self, key, glob=False):
@@ -28,7 +29,7 @@ class DjSet(object):
         ns = '.'.join([key, self._glob]) if glob else '.'.join([key, self.name, self._glob])
         return ns
     
-    def get(self, key, default=None):
+    def get(self, key, prompt_default=''):
         """
         Return the value for key from the environment or keyring.
         The keyring value is resolved from a local namespace or a global one.
@@ -38,12 +39,13 @@ class DjSet(object):
             value = keyring.get_password(self.namespace(key), key)
         if not value:
             value = keyring.get_password(self.namespace(key, glob=True), key)
-        value = value or default
         if not value and not self.prompt:
             error_msg = "The %s setting is undefined in the environment and %s" % (value, self._glob)
             raise ImproperlyConfigured(error_msg)
         elif not value and self.prompt:
-            value = self._prompt_for_value(key)
+            value = self._prompt_for_value(key, prompt_default)
+            if value:
+                self.set(key, value)
         return value
     
     def set(self, key, value, glob=False):
