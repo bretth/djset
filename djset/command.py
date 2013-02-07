@@ -1,16 +1,19 @@
 
 """
-Usage:  djset add <key>=<value> [--global] [--name]
-        djset remove <key> [--global] [--name]
+Usage:  djset add <key>=<value> [--global] [--name=<name> | --settings=<settings>]
+        djset remove <key> [--global] [--name=<name> | --settings=<settings>]
 
 """
-from .djset import DjSet
+from .djset import DjSet, _locate_settings
 
 def _create_djset(args):
     """ Return a DjSet object """
     name = args.get('--name')
+    settings = args.get('--settings')
     if name:
-        return DjSet(name)
+        return DjSet(name=name)
+    elif settings:
+        return DjSet(name=settings)
     else:
         return DjSet() 
 
@@ -39,10 +42,16 @@ def _parse_args(args):
 
 def main():
     from docopt import docopt
+    import os
+    import sys
+    #for p in sys.path: print(p)
+    sys.path.append(os.getcwd())
     args = docopt(__doc__)
-    
-    func, args, kwargs = _parse_args(args)
+    func, fargs, kwargs = _parse_args(args)
     if func:
-        func(*args, **kwargs)
+        func(*fargs, **kwargs)
+        s = _locate_settings(args.get('--settings'))
+        os.utime(s, None)
+        
     
     
