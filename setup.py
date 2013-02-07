@@ -18,7 +18,7 @@ setup(name='djset',
      "djset = djset.command:main",
      ]},
     scripts=['dexportunset.sh',],
-    install_requires = ["keyring"],
+    install_requires = ["keyring", "docopt"],
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Framework :: Django',
