@@ -1,27 +1,33 @@
 
-"""
-Usage:  djset add <key>=<value> [--global] [--name=<name> | --settings=<settings>]
-        djset remove <key> [--global] [--name=<name> | --settings=<settings>]
+from docopt import docopt
+import os
+import sys
+
+from .djset import DjSecret, DjConfig, _locate_settings
+
+COMMAND = """
+Usage:  dj%s add <key>=<value> [--global] [--name=<name> | --settings=<settings>]
+        dj%s remove <key> [--global] [--name=<name> | --settings=<settings>]
 
 """
-from .djset import DjSet, _locate_settings
 
-def _create_djset(args):
-    """ Return a DjSet object """
+
+def _create_djset(args, cls):
+    """ Return a DjSecret object """
     name = args.get('--name')
     settings = args.get('--settings')
     if name:
-        return DjSet(name=name)
+        return cls(name=name)
     elif settings:
-        return DjSet(name=settings)
+        return cls(name=settings)
     else:
-        return DjSet() 
+        return cls() 
 
 
-def _parse_args(args):
+def _parse_args(args, cls):
     """ Parse a docopt dictionary of arguments """
     
-    d = _create_djset(args)
+    d = _create_djset(args, cls)
     
     key_value_pair = args.get('<key>=<value>')
     key = args.get('<key>')
@@ -39,19 +45,24 @@ def _parse_args(args):
     else:
         return None, None, None
 
-
-def main():
-    from docopt import docopt
-    import os
-    import sys
-    #for p in sys.path: print(p)
+def main(command, cls):
     sys.path.append(os.getcwd())
-    args = docopt(__doc__)
-    func, fargs, kwargs = _parse_args(args)
+    args = docopt(command)
+    func, fargs, kwargs = _parse_args(args, cls)
     if func:
         func(*fargs, **kwargs)
         s = _locate_settings(args.get('--settings'))
         os.utime(s, None)
+
+def djsecret():
+    command = COMMAND % 'secret'
+    main(command, DjSecret)
+    
+     
+def djconfig():
+    command = COMMAND % 'config'
+    main(command, DjConfig)
+
         
     
     

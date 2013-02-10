@@ -1,29 +1,34 @@
 import os
+import shutil
 import time
 import inspect
 import unittest
 from subprocess import call
 from importlib import import_module
+from tempfile import mkdtemp
 
 import keyring
 from keyring.errors import PasswordDeleteError
-from nose2.tools import params
+from keyring.py27compat import configparser
+from keyring.util.escape import escape as escape_for_ini
 from django.core.exceptions import ImproperlyConfigured
 
-from djset.djset import _locate_settings
-from djset.command import _parse_args, _create_djset
-from djset import DjSet
+from nose2.tools import params
+
+from djset.djset import _locate_settings, DjSecret, DjConfig
+from djset.commands import _parse_args, _create_djset
+from djset.backends import UnencryptedKeyring, config_keyring
 
 
-
-class BaseDjSet(unittest.TestCase):
+class BaseDjSecret(unittest.TestCase):
 
     def setUp(self):
         self.settings = 'tests.settings'
         os.environ['DJANGO_SETTINGS_MODULE'] = self.settings
-        self.d = DjSet()
+        from djset import DjSecret
+        self.d = DjSecret()
         
-class BaseDjSetWithTeardown(BaseDjSet):
+class BaseDjSecretWithTeardown(BaseDjSecret):
     def tearDown(self):
         nsl = self.d.namespace('key')
         nsg = self.d.namespace('key', True)
@@ -42,7 +47,7 @@ class BaseDjSetWithTeardown(BaseDjSet):
             pass
 
 
-class TestCommands(BaseDjSet):
+class TestCommands(BaseDjSecret):
 
     def setUp(self):
         super(TestCommands, self).setUp()
@@ -70,23 +75,23 @@ class TestCommands(BaseDjSet):
         self.assertNotEqual(mtime1, mtime2)
 
 
-class TestLocateSettings(BaseDjSet):
+class TestLocateSettings(BaseDjSecret):
 
     def test_locate_settings(self):
         s = _locate_settings()
         self.assertIn('tests/settings.py', s)
 
 
-class TestNamespace(BaseDjSet):
+class TestNamespace(BaseDjSecret):
     
  
     @params(
-        (False, 'key.tests.settings.keyring'),
+        (False, 'tests.settings.keyring'),
         (True, 'key.keyring'))
     def test_namespace(self, glob, namespace):
         self.assertEqual(namespace, self.d.namespace('key', glob))
 
-class TestSet(BaseDjSetWithTeardown):
+class TestSet(BaseDjSecretWithTeardown):
     
     @params(
         (False, u'value'),
@@ -99,12 +104,12 @@ class TestSet(BaseDjSetWithTeardown):
         self.assertEqual(value, v)
         
 
-class TestGet(BaseDjSetWithTeardown):
+class TestGet(BaseDjSecretWithTeardown):
     
     def setUp(self):
         super(TestGet, self).setUp()
         # override user input function for test
-        self.d._prompt_for_value = lambda key, prompt_default: 'vp'
+        self.d._prompt_for_value = lambda key, prompt_default, prompt_help: 'vp'
         self.d.prompt = True
     
     @params(
@@ -124,7 +129,7 @@ class TestGet(BaseDjSetWithTeardown):
         self.assertEqual(result, self.d.get('key'))
 
 
-class TestGetNoPrompt(BaseDjSet):
+class TestGetNoPrompt(BaseDjSecret):
 
     def test_get_no_prompt(self):
         with self.assertRaises(ImproperlyConfigured):
@@ -132,7 +137,7 @@ class TestGetNoPrompt(BaseDjSet):
     
     
 
-class TestRemove(BaseDjSetWithTeardown):
+class TestRemove(BaseDjSecretWithTeardown):
     
     def setUp(self):
         super(TestRemove, self).setUp()
@@ -207,21 +212,59 @@ class TestParseArgs(unittest.TestCase):
         (remove, remove_result),
     )
     def test_parse_args(self, args, result):
-        func, args, kwargs = _parse_args(args)
+        func, args, kwargs = _parse_args(args, DjSecret)
         if not func:
             self.assertEqual(func, result)
         else:
             self.assertEqual(func.__name__, result['func'])
             self.assertEqual(args, result['args'])
             self.assertEqual(kwargs, result['kwargs'])
-            
-    def test_create_djset(self):
+    
+    @params(DjSecret, DjConfig)
+    def test_create_djset(self, cls):
         args = {'--global': True,
         '--name': 'djstest',
         '<key>': None, #remove
         '<key>=<value>': 'key=value', #add
         'add': True,
         'remove': False}
-        d = _create_djset(args)
+        d = _create_djset(args, cls)
         self.assertEqual(d.name, 'djstest')
-          
+
+
+class UEBackendBase(unittest.TestCase):
+    def setUp(self):
+        self.keyring = config_keyring
+        self.tmpdir = mkdtemp()
+        self.filename = 'config_keyring.cfg'
+        self.file_path = os.path.join(self.tmpdir, self.filename)
+        # alter the filepath so we're not using the real one
+        config_keyring.file_path = self.file_path
+    
+    def tearDown(self):
+        shutil.rmtree(self.tmpdir)
+
+
+class TestUESet(UEBackendBase):
+        
+    def test_set_password(self):
+        self.keyring.set_password('test', 'key', 'value')
+        # load the passwords from the file
+        config = configparser.RawConfigParser()
+        config.read(self.file_path, encoding='utf-8')
+        value = config.get('test', 'key')
+        self.assertEqual(value, 'value')
+            
+
+class TestUEGet(UEBackendBase):
+    
+    def setUp(self):
+        super(TestUEGet, self).setUp()
+        self.keyring.set_password('test', 'key', 'value')
+    
+    def test_get_password(self):
+        self.assertEqual(self.keyring.get_password('test', 'key'), 'value')
+    
+    
+        
+    
