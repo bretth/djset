@@ -11,10 +11,9 @@ Djset is a convenience layer on top of the python keyring library.
 Installation
 ---------------
 
-Djset currently requires python >= 2.6. There are currently some outstanding issues with python keyring on python 3.
+Djset currently requires python >= 2.6. There are currently some outstanding issues with python keyring on python 3::
 
-
-``pip install djset``
+    pip install djset
 
 To install the optional environment variable helpers (in OSX or Linux) put ``source dexportunset.sh`` in your postactivate script if you use virtualenvwrapper or in your shell startup file if you don't.
 
@@ -81,7 +80,7 @@ To add and remove keys use the command line::
     djconfig remove <key> [--global]  [--name=<name> | --settings=<settings>]
 
 
-An alternative/complement to storing settings is to export it to the current environment. The following commands (OSX & Linux only) behave the same as shell export and unset but also trigger the reload.
+An alternative/complement to storing settings is to export it to the current environment. The following commands (OSX & Linux only) behave the same as shell export and unset but also trigger the reload::
 
     dexport <key>=<value>
     dunset <key>
@@ -99,12 +98,6 @@ Set your own keyring backend by overriding the DjSecret or DjConfig keyring attr
 Development & Support
 ----------------------
 Requires Nose2 for tests. Repository and issues at https://github.com/bretth/djset
-
-
-    
-
-
-
 
 
         
