@@ -3,7 +3,8 @@ from docopt import docopt
 import os
 import sys
 
-from .djset import DjSecret, DjConfig, _locate_settings
+from .djset import DjSecret, DjConfig
+from .utils import _locate_settings
 
 COMMAND = """
 Usage:  dj%s add <key>=<value> [--global] [--name=<name> | --settings=<settings>]

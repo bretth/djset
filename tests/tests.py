@@ -15,9 +15,10 @@ from django.core.exceptions import ImproperlyConfigured
 
 from nose2.tools import params
 
-from djset.djset import _locate_settings, DjSecret, DjConfig
+from djset.djset import DjSecret, DjConfig
 from djset.commands import _parse_args, _create_djset
 from djset.backends import UnencryptedKeyring, config_keyring
+from djset.utils import _locate_settings
 
 
 class BaseDjSecret(unittest.TestCase):

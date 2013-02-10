@@ -1,8 +1,14 @@
 #!/usr/bin/env python
 import distribute_setup
+import sys
 distribute_setup.use_setuptools()
 from setuptools import setup
 
+
+INSTALL_REQUIRES = ["keyring", "docopt"]
+if sys.version_info[0] < 3: # Install the backport of configparser
+    INSTALL_REQUIRES.append("configparser")
+    
 
 setup(name='djset',
     version='0.2',
@@ -14,12 +20,12 @@ setup(name='djset',
     py_modules=['distribute_setup'],
     license='LICENSE.txt',
     entry_points={"console_scripts":
-    ["djs_locate_settings = djset.djset:locate_settings",
+    ["djs_locate_settings = djset.utils:locate_settings",
      "djsecret = djset.commands:djsecret",
      "djconfig = djset.commands:djconfig",
      ]},
     scripts=['dexportunset.sh',],
-    install_requires = ["keyring", "docopt"],
+    install_requires = INSTALL_REQUIRES,
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Framework :: Django',

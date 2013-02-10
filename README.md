@@ -42,13 +42,13 @@ The key is resolved in the following order::
         
 Prompt will also *add* the key to your keyring. 
 
-A common practice is to set some sensible defaults for development including for example your SECRET_KEY. One way this can be done is an *if else* pattern in your settings. Djset provides for this with a twist on dict.get behaviour. 
+A common practice is to set some sensible defaults for development including for example your SECRET_KEY. Djset provides for this with a twist on dict.get behaviour. 
 
 ``SECRET_KEY = s.get('SECRET_KEY', prompt_default='xyz')`` or just ``SECRET_KEY = s.get('SECRET_KEY', 'xyz')`` will set the default value the user is prompted with, but if prompt=False will still raise an ImproperlyConfigured error which is more useful for an automated deployment. An additional optional argument ``prompt_help`` can help the user make a decision. This might be useful if you are distributing a project template for others to use.
 
 By default the *NAME* in the namespace is your DJANGO_SETTINGS_MODULE. To use an alternate namespace:: 
 
-    s = DjSecret(name='your.settings')
+    s.name = 'your.settings'
 
 To add and remove keys use the command line::
 
@@ -62,7 +62,10 @@ Note::
 
 All commands trigger a django runserver reload by changing the modified time on the settings file.
 
-Djset has one other keyring backend for ordinary settings which will be stored in keyring_public.cfg at ~/.local/share/ or "$USERPROFILE/Local Settings" on Windows. Usage is identical except it wont raise an ImproperlyConfigured error by default::
+Ordinary setting management
+----------------------------
+
+Djset has one other keyring backend for non-sensitive settings which will be stored in keyring_public.cfg at ~/.local/share/ or "$USERPROFILE/Local Settings" on Windows. Usage is identical except it wont raise an ImproperlyConfigured error by default::
 
     from djset import config as c
     
@@ -78,7 +81,7 @@ To add and remove keys use the command line::
     djconfig remove <key> [--global]  [--name=<name> | --settings=<settings>]
 
 
-An alternative/complement to storing it secretly is to export it to the current environment. The following commands (OSX & Linux only) behave the same as shell export and unset but also trigger the reload.
+An alternative/complement to storing settings is to export it to the current environment. The following commands (OSX & Linux only) behave the same as shell export and unset but also trigger the reload.
 
     dexport <key>=<value>
     dunset <key>
@@ -92,7 +95,7 @@ Set your own keyring backend by overriding the DjSecret or DjConfig keyring attr
     from djset import DjSecret
     DjSecret.keyring = PlaintextKeyring()
     s = DjSecret()
-    
+
 Development & Support
 ----------------------
 Requires Nose2 for tests. Repository and issues at https://github.com/bretth/djset
