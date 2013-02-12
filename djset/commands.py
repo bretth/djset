@@ -7,8 +7,8 @@ from .djset import DjSecret, DjConfig
 from .utils import _locate_settings
 
 COMMAND = """
-Usage:  dj%s add <key>=<value> [--global] [--name=<name> | --settings=<settings>]
-        dj%s remove <key> [--global] [--name=<name> | --settings=<settings>]
+Usage:  dj%(cmd)s add <key>=<value> [--global] [--name=<name> | --settings=<settings>]
+        dj%(cmd)s remove <key> [--global] [--name=<name> | --settings=<settings>]
 
 """
 
@@ -56,12 +56,12 @@ def main(command, cls):
         os.utime(s, None)
 
 def djsecret():
-    command = COMMAND % 'secret'
+    command = COMMAND % {'cmd': 'secret'}
     main(command, DjSecret)
     
      
 def djconfig():
-    command = COMMAND % 'config'
+    command = COMMAND % {'cmd': 'config'}
     main(command, DjConfig)
 
         
