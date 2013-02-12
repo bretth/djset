@@ -1,21 +1,24 @@
 import os
 
-def eval_bool(value, strict=False):
+
+def getbool(key, default=False):
     """
-    Returns True or False or value
+    Returns True or False for any TRUE, FALSE, 0, or 1.
+    Other values return default.
     """
-    if value == 'True':
+    value = os.getenv(key)
+    if value and value.lower() in ('true', '1'):
         value = True
-    elif value == 'False':
+    elif value and value.lower() in ('false', '0'):
         value = False
-    elif strict:
-        value = False
+    else:
+        value = default
     return value
 
 
 def _locate_settings(settings=''):
     "Return the path to the DJANGO_SETTINGS_MODULE"
-    
+
     import imp
     import sys
     sys.path.append(os.getcwd())
@@ -32,7 +35,7 @@ def _locate_settings(settings=''):
 
 def locate_settings():
     "Print the path to your DJANGO_SETTINGS_MODULE"
-    
+
     settings = _locate_settings()
     if settings:
         print(settings)
