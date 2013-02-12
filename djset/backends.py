@@ -4,7 +4,6 @@ import codecs
 import keyring.util.platform
 from keyring.py27compat import configparser
 from keyring.backends.file import BaseKeyring
-from keyring.core import load_keyring
 from keyring.util.escape import escape as escape_for_ini
 from keyring.util import properties
 
