@@ -82,7 +82,7 @@ class DjSecret(DjBase):
         """
         value = super(DjSecret, self).get(key, prompt_default)
         if not value and not self.prompt and self.raise_on_none:
-            error_msg = "The %s setting is undefined in the environment and %s" % (value, self._glob)
+            error_msg = "The %s setting is undefined in the environment and djset %s" % (key, self._glob)
             raise self.raise_on_none(error_msg)
         elif not value and self.prompt:
             value = self._prompt_for_value(key, prompt_default)
