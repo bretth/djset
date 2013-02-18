@@ -84,9 +84,10 @@ An alternative/complement to storing settings is to export it to the current env
 
     dexport <key>=<value>
     dunset <key>
+    
         
-Advanced
----------
+Customisation
+--------------
 
 Set your own keyring backend by overriding the DjSecret or DjConfig keyring attribute with your own keyring instance::
 

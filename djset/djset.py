@@ -25,7 +25,7 @@ class DjBase(object):
             pass
         if prompt_help:
             print(prompt_help, os.linesep)
-        return input("Enter the '%s' value for %s [%s]:" % (self.name, key, prompt_default)) or prompt_default
+        return input("Enter the '%s' value for %s [%s]: " % (self.name, key, prompt_default)) or prompt_default
     
     def namespace(self, key, glob=False):
         """Return a namespace for keyring"""
