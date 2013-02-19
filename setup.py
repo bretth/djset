@@ -11,7 +11,7 @@ if sys.version_info[0] < 3: # Install the backport of configparser
     
 
 setup(name='djset',
-    version='0.2.1',
+    version='0.2.2',
     description="Utilities for Django settings secrets",
     long_description=open('README.md').read(),
     author='Brett Haydon',
