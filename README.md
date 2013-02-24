@@ -46,11 +46,13 @@ Prompt will also *add* the key to your keyring.
 
 You can see where your key was set via a ``printsettings`` management command which enhances the builtin django command ``diffsettings`` by annotating the setting to show where your setting came from.
 
-    $ ./manage.py printsettings    
+    $ ./manage.py printsettings
+
+Printsettings can also show —all your active settings as per the django-extensions command of the same name.
 
 A common practice is to set some sensible defaults for development including for example your SECRET_KEY. Djset provides for this with a twist on dict.get behaviour. 
 
-``SECRET_KEY = s.get('SECRET_KEY', prompt_default='xyz')`` or just ``SECRET_KEY = s.get('SECRET_KEY', 'xyz')`` will set the default value the user is prompted with, but if prompt=False will still raise an ImproperlyConfigured error which is more useful for an automated deployment. 
+``SECRET_KEY = s.get('SECRET_KEY', prompt_default='xyz')`` or just ``SECRET_KEY = s.get('SECRET_KEY', 'xyz')`` will set the default value the user is prompted with, but if s.prompt=False will still raise an ImproperlyConfigured error which is more useful for an automated deployment. 
 
 By default the local namespace is your DJANGO_SETTINGS_MODULE.keyring . To use an alternate local namespace: 
 
