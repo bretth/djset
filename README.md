@@ -32,13 +32,13 @@ In your settings.py add something like the following:
     s.prompt = DEBUG
     SECRET_KEY = s.get('SECRET_KEY')  
 
-The key is resolved in the following order::
+The key is resolved in the following order:
 
     environment
         |
-    keychain in the NAME.keyring namespace (local)
+    keychain in a project settings local namespace
         |
-    keychain in the KEY.keyring namespace (global)
+    keychain in global namespace
         |
     prompt for input or raise ImproperlyConfigured
         
@@ -50,9 +50,9 @@ You can see where your key was set via a ``printsettings`` management command wh
 
 A common practice is to set some sensible defaults for development including for example your SECRET_KEY. Djset provides for this with a twist on dict.get behaviour. 
 
-``SECRET_KEY = s.get('SECRET_KEY', prompt_default='xyz')`` or just ``SECRET_KEY = s.get('SECRET_KEY', 'xyz')`` will set the default value the user is prompted with, but if prompt=False will still raise an ImproperlyConfigured error which is more useful for an automated deployment. An additional optional argument ``prompt_help`` can help the user make a decision. This might be useful if you are distributing a project template for others to use.
+``SECRET_KEY = s.get('SECRET_KEY', prompt_default='xyz')`` or just ``SECRET_KEY = s.get('SECRET_KEY', 'xyz')`` will set the default value the user is prompted with, but if prompt=False will still raise an ImproperlyConfigured error which is more useful for an automated deployment. 
 
-By default the *NAME* in the namespace is your DJANGO_SETTINGS_MODULE. To use an alternate namespace:: 
+By default the local namespace is your DJANGO_SETTINGS_MODULE.keyring . To use an alternate local namespace: 
 
     s.name = 'your.settings'
 
@@ -80,8 +80,10 @@ Djset has one other keyring backend for non-sensitive settings which will be sto
     http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
     """
     TIME_ZONE = c.get('TIME_ZONE', 'UTC', tz_help)
+
+Here we’ve introduced the third optional keyword arg, *prompt_help* which presents some help when prompting the user for input. This might be useful to provide context for the setting that is required.
     
-To add and remove keys use the command line::
+To add and remove keys use the command line:
 
     djconfig add <key>=<value> [--global] [--name=<name> | --settings=<settings>]
     djconfig remove <key> [--global]  [--name=<name> | --settings=<settings>]
