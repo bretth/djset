@@ -11,18 +11,21 @@ Djset is a convenience layer on top of the python keyring library.
 Installation
 ---------------
 
-Djset currently requires python >= 2.6. There are currently some outstanding issues with python keyring on python 3::
+Djset currently requires python >= 2.6. There are currently some outstanding issues with python keyring on python 3:
 
     pip install djset
 
 To install the optional environment variable helpers (in OSX or Linux) put ``source dexportunset.sh`` in your postactivate script if you use virtualenvwrapper or in your shell startup file if you don't.
 
-Djset is entirely dependent on the DJANGO_SETTINGS_MODULE variable being set in the environment. You can use the virtualenvwrapper postactivate and postdeactivate scripts to export and unset this variable for your project.
+Djset is entirely dependent on the DJANGO_SETTINGS_MODULE variable being set in the environment. You can use the virtualenvwrapper postactivate and postdeactivate scripts to export and unset this variable for your project or set it in the manage.py.
+
+Add 'djset' to your project's ``INSTALLED_APPS`` setting.
 
 
 Usage
---------   
-In your settings.py add something like the following::
+--------
+
+In your settings.py add something like the following:
 
     from djset import secret as s
     
@@ -39,7 +42,11 @@ The key is resolved in the following order::
         |
     prompt for input or raise ImproperlyConfigured
         
-Prompt will also *add* the key to your keyring. 
+Prompt will also *add* the key to your keyring.
+
+You can see where your key was set via a ``printsettings`` management command which enhances the builtin django command ``diffsettings`` by annotating the setting to show where your setting came from.
+
+    $ ./manage.py printsettings    
 
 A common practice is to set some sensible defaults for development including for example your SECRET_KEY. Djset provides for this with a twist on dict.get behaviour. 
 
@@ -49,12 +56,12 @@ By default the *NAME* in the namespace is your DJANGO_SETTINGS_MODULE. To use an
 
     s.name = 'your.settings'
 
-To add and remove keys use the command line::
+To add and remove keys use the command line:
 
     djsecret add <key>=<value> [--global] [--name=<name> | --settings=<settings>]
     djsecret remove <key> [--global]  [--name=<name> | --settings=<settings>]
 
-Note::
+Note:
 
     OSX and Gnome don't have an api for removing keys so on those platforms the value is cleared.
 
@@ -64,7 +71,7 @@ All commands trigger a django runserver reload by changing the modified time on 
 Ordinary setting management
 ----------------------------
 
-Djset has one other keyring backend for non-sensitive settings which will be stored in keyring_public.cfg at ~/.local/share/ or "$USERPROFILE/Local Settings" on Windows. Usage is identical except it wont raise an ImproperlyConfigured error by default::
+Djset has one other keyring backend for non-sensitive settings which will be stored in keyring_public.cfg at ~/.local/share/ or "$USERPROFILE/Local Settings" on Windows. Usage is identical except it wont raise an ImproperlyConfigured error by default:
 
     from djset import config as c
     
@@ -80,7 +87,7 @@ To add and remove keys use the command line::
     djconfig remove <key> [--global]  [--name=<name> | --settings=<settings>]
 
 
-An alternative/complement to storing settings is to export it to the current environment. The following commands (OSX & Linux only) behave the same as shell export and unset but also trigger the reload::
+An alternative/complement to storing settings is to export it to the current environment. The following commands (OSX & Linux only) behave the same as shell export and unset but also trigger the reload:
 
     dexport <key>=<value>
     dunset <key>
@@ -89,7 +96,7 @@ An alternative/complement to storing settings is to export it to the current env
 Customisation
 --------------
 
-Set your own keyring backend by overriding the DjSecret or DjConfig keyring attribute with your own keyring instance::
+Set your own keyring backend by overriding the DjSecret or DjConfig keyring attribute with your own keyring instance:
 
     from keyring.backends.file import PlaintextKeyring
     from djset import DjSecret

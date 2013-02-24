@@ -13,14 +13,11 @@ class DjBase(object):
     _glob = 'keyring'
     keyring = keyring
     raise_on_none = None
-    ENV = 1
-    LOCAL = 2
-    GLOBAL = 3
     
     def __init__(self, prompt=False, name=''):
         self.name = name
         self.prompt = prompt
-        self.dd = {}
+        self.kns = {}
                 
     def _prompt_for_value(self, key, prompt_default, prompt_help=''):
         try:
@@ -30,19 +27,6 @@ class DjBase(object):
         if prompt_help:
             print(prompt_help, os.linesep)
         return input("Enter the '%s' value for %s [%s]: " % (self.name, key, prompt_default)) or prompt_default
-    
-    def _get_source(self, key):
-        """Get the source that the key came from after it has already been evaluated"""
-        lookup = self.dd.get(key)
-        if lookup == self.ENV:
-            ns = 'environ'
-        elif lookup == self.LOCAL:
-            ns = self.namespace(key)
-        elif lookup == self.GLOBAL:
-            ns = self.namespace(key, glob=True)
-        else:
-            ns = ''
-        return ns
     
     def namespace(self, key, glob=False):
         """Return a namespace for keyring"""
@@ -55,20 +39,21 @@ class DjBase(object):
         """Return a value from the environ or keyring"""
         value = os.getenv(key)
         if not value:
-            value = self.keyring.get_password(self.namespace(key), key)
+            ns = self.namespace(key)
+            value = self.keyring.get_password(ns, key)
         else:
-            self.dd[key] = self.ENV  
+            ns = 'environ'  
         if not value:
-            value = self.keyring.get_password(self.namespace(key, glob=True), key)
-        elif not self.dd.get(key):
-            self.dd[key] = self.LOCAL
+            ns = self.namespace(key, glob=True)
+            value = self.keyring.get_password(ns, key)
+        if not value:
+            ns = ''
         if not value and self.prompt:
             value = self._prompt_for_value(key, prompt_default, prompt_help)
             if value:
                 self.set(key, value)
-        elif value and not self.dd.get(key):
-            self.dd[key] = self.GLOBAL
-
+        if ns:
+            self.kns[key] = ns
         return value
     
     def set(self, key, value, glob=False):

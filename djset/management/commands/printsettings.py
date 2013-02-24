@@ -24,15 +24,15 @@ def module_to_dict(module, omittable=lambda k: k.startswith('_')):
 class Command(NoArgsCommand):
     help = """Displays differences between the current settings.py and Django's
     default settings. Settings that don't appear in the defaults are
-    followed by "###". Djset settings are followed by "# " and the source of the
-    setting in brackets ( )
+    followed by "###". Djset settings are followed by "# "
+    and the source of the setting in brackets ( )
     """
 
     requires_model_validation = False
     
     option_list = NoArgsCommand.option_list + (
         make_option('--all', action='store_false', dest='all',
-                    help='Print ALL active settings.'),
+                    help='Print all active settings.'),
     )
     
     def handle_noargs(self, **options):
@@ -58,11 +58,11 @@ class Command(NoArgsCommand):
             elif all_settings or (user_settings[key] != default_settings[key]):
                 line.append("%s = %s " % (key, value))
             # Annotate the values with the djset source
-            if key in secret.dd:
-                line.append("# (%s) " % secret._get_source(key))
-            if key in config.dd:
-                line.append("# (%s) " % config._get_source(key))
-            if key in secret.dd and key in config.dd:
+            if key in secret.kns:
+                line.append("# (%s) " % secret.kns.get(key))
+            if key in config.kns:
+                line.append("# (%s) " % config.kns.get(key))
+            if key in secret.kns and key in config.kns:
                 line.append('***')
                 note_key.append(key)
                 nb = True
