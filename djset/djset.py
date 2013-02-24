@@ -13,10 +13,14 @@ class DjBase(object):
     _glob = 'keyring'
     keyring = keyring
     raise_on_none = None
+    ENV = 1
+    LOCAL = 2
+    GLOBAL = 3
     
     def __init__(self, prompt=False, name=''):
         self.name = name
         self.prompt = prompt
+        self.dd = {}
                 
     def _prompt_for_value(self, key, prompt_default, prompt_help=''):
         try:
@@ -27,6 +31,19 @@ class DjBase(object):
             print(prompt_help, os.linesep)
         return input("Enter the '%s' value for %s [%s]: " % (self.name, key, prompt_default)) or prompt_default
     
+    def _get_source(self, key):
+        """Get the source that the key came from after it has already been evaluated"""
+        lookup = self.dd.get(key)
+        if lookup == self.ENV:
+            ns = 'environ'
+        elif lookup == self.LOCAL:
+            ns = self.namespace(key)
+        elif lookup == self.GLOBAL:
+            ns = self.namespace(key, glob=True)
+        else:
+            ns = ''
+        return ns
+    
     def namespace(self, key, glob=False):
         """Return a namespace for keyring"""
         if not self.name:
@@ -35,15 +52,23 @@ class DjBase(object):
         return ns
     
     def get(self, key, prompt_default='', prompt_help=''):
+        """Return a value from the environ or keyring"""
         value = os.getenv(key)
         if not value:
             value = self.keyring.get_password(self.namespace(key), key)
+        else:
+            self.dd[key] = self.ENV  
         if not value:
             value = self.keyring.get_password(self.namespace(key, glob=True), key)
+        elif not self.dd.get(key):
+            self.dd[key] = self.LOCAL
         if not value and self.prompt:
             value = self._prompt_for_value(key, prompt_default, prompt_help)
             if value:
                 self.set(key, value)
+        elif value and not self.dd.get(key):
+            self.dd[key] = self.GLOBAL
+
         return value
     
     def set(self, key, value, glob=False):
@@ -75,19 +100,15 @@ class DjSecret(DjBase):
     """
     raise_on_none = ImproperlyConfigured
    
-    def get(self, key, prompt_default=''):
+    def get(self, key, prompt_default='', prompt_help=''):
         """
         Return the value for key from the environment or keyring.
         The keyring value is resolved from a local namespace or a global one.
         """
-        value = super(DjSecret, self).get(key, prompt_default)
-        if not value and not self.prompt and self.raise_on_none:
+        value = super(DjSecret, self).get(key, prompt_default, prompt_help='')
+        if not value and self.raise_on_none:
             error_msg = "The %s setting is undefined in the environment and djset %s" % (key, self._glob)
             raise self.raise_on_none(error_msg)
-        elif not value and self.prompt:
-            value = self._prompt_for_value(key, prompt_default)
-            if value:
-                self.set(key, value)
         return value
 
 

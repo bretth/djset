@@ -142,6 +142,9 @@ class TestRemove(BaseDjSecretWithTeardown):
         self.d.remove('key', glob)
         ns = self.d.namespace('key', glob)
         self.assertEqual(keyring.get_password(ns, 'key'), '')
+        
+        
+
 
 
 
